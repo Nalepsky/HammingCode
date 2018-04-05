@@ -17,7 +17,6 @@ public class ServerThread {
     }
 
     public void run() {
-        //TODO: dodać pętlę dzięki której można wysłać wiele wiadomości od jednego klienta
         try {
 
             BufferedReader input = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
