@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class Window extends JFrame implements ActionListener {
     Socket socket;
@@ -74,9 +75,12 @@ public class Window extends JFrame implements ActionListener {
             tShow.setText("");
             try {
                 lShow.setText(input.readLine());
-            } catch (IOException e1) {
+            }catch (SocketException se){
+                se.printStackTrace();
+            }catch (IOException e1) {
                 e1.printStackTrace();
             }
+
         }
         //TODO: dodać pojedyncze przekłamanie bitów
         //TODO: dodać zmiane stringa na bity i na odwrót
@@ -100,6 +104,9 @@ public class Window extends JFrame implements ActionListener {
                 e1.printStackTrace();
             }
         } else if(source==bExit){
+
+            serverPrint.println("someBad_AsS_Secur3d+Strin8!");
+
             try {
                 socket.close();
             } catch (IOException e1) {
