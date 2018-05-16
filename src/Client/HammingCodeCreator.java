@@ -15,14 +15,19 @@ public class HammingCodeCreator {
         this.message = createHammingCode(message);
     }
 
+    /**
+     *
+     * @param message
+     * @return Hamming Code created from message
+     */
     private String createHammingCode(String message){
 
-        if(message.length()>=2) {
+        if(message.length()>=1) {
 
-            char[] bytes = message.toCharArray();
-            bytes = swapChars(bytes);
+            char[] bitMessage = message.toCharArray();
+            bitMessage = swapChars(bitMessage);
 
-            int length = bytes.length;
+            int length = bitMessage.length;
             int maxChecker = 1;
             int checkersCount = 0;
             while (maxChecker < length+1) {
@@ -30,14 +35,21 @@ public class HammingCodeCreator {
                 checkersCount++;
                 maxChecker*=2;
             }
-            char[] controlBits = createControlBits(bytes, checkersCount, bytes.length);
+            char[] controlBits = createControlBits(bitMessage, checkersCount, bitMessage.length);
 
-            return createFinalMessage(controlBits, bytes);
+            return createFinalMessage(controlBits, bitMessage);
         }
         return null;
     }
 
-    private char[] createControlBits(char[] bytes, int numOfCheckers, int messageLength){
+    /**
+     *
+     * @param message
+     * @param numOfCheckers
+     * @param messageLength
+     * @return control bits created from message
+     */
+    private char[] createControlBits(char[] message, int numOfCheckers, int messageLength){
         char[][] controlBitsPosition = new char[messageLength][numOfCheckers];
 
         for (int i = 0; i<messageLength; i++){
@@ -57,7 +69,7 @@ public class HammingCodeCreator {
             if ((insertPosition & (insertPosition - 1)) == 0)
                 insertPosition++;
 
-            if(bytes[i] == '1'){
+            if(message[i] == '1'){
                 binaryPosition = Integer.toString(convertToBinary(insertPosition)).toCharArray();
                 for(int k = 0; k<binaryPosition.length; k++){
                     temp[temp.length -k -1] = binaryPosition[binaryPosition.length - k - 1];
@@ -70,27 +82,43 @@ public class HammingCodeCreator {
             insertPosition++;
         }
 
-        char[] controlBitsValue = new char[numOfCheckers];
+        char[] controlBitsValue = sumBitsToChars(numOfCheckers, messageLength, controlBitsPosition);
+
+        return swapChars(controlBitsValue);
+    }
+
+    /**
+     *
+     * @param numOfCheckers
+     * @param messageLength
+     * @param bitPositionOf1
+     * @return char array, each element is sum of specific column
+     */
+    private char[] sumBitsToChars(int numOfCheckers, int messageLength, char[][] bitPositionOf1){
+        char[] result = new char[numOfCheckers];
 
         int sumOfBits;
         for (int i = 0; i<numOfCheckers; i++){
             sumOfBits = 0;
             for(int j = 0; j<messageLength; j++){
-                if(controlBitsPosition[j][i]=='1'){
+                if(bitPositionOf1[j][i]=='1'){
                     sumOfBits++;
                 }
             }
             sumOfBits%=2;
             if(sumOfBits==1){
-                controlBitsValue[i] = '1';
+                result[i] = '1';
             } else {
-                controlBitsValue[i] = '0';
+                result[i] = '0';
             }
         }
-
-        return swapChars(controlBitsValue);
+        return result;
     }
 
+    /**
+     * @param array - char array
+     * @return swapped char array
+     */
     private char[] swapChars(char[] array) {
 
         char tempSwap;
@@ -102,6 +130,11 @@ public class HammingCodeCreator {
         return array;
     }
 
+    /**
+     *
+     * @param decimal
+     * @return binaryNumber
+     */
     private int convertToBinary(int decimal)
     {
         int result = 0;
@@ -117,6 +150,12 @@ public class HammingCodeCreator {
         return result;
     }
 
+    /**
+     *
+     * @param controlBits
+     * @param message
+     * @return proper fusion of controlBits and message
+     */
     private String createFinalMessage(char[] controlBits, char[] message){
         char [] finalChars = new char[controlBits.length+message.length];
 
