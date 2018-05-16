@@ -1,9 +1,9 @@
 package Server;
 
-public class HammingCode {
+public class ServerHammingCode {
     private String message;
 
-    public HammingCode(String message) {
+    public ServerHammingCode(String message) {
         this.message = message;
     }
 

@@ -5,7 +5,7 @@ import java.net.Socket;
 
 public class ServerThread {
     private Socket serverSocket;
-    private HammingCode hammingCode;
+    private ServerHammingCode hammingCode;
     private String dataIn;
     private String dataOut;
     private int nOfErrors;
@@ -27,7 +27,7 @@ public class ServerThread {
                 dataIn = input.readLine();
 
                     System.out.println("Received message: " + dataIn);
-                    hammingCode = new HammingCode(dataIn);
+                    hammingCode = new ServerHammingCode(dataIn);
 
                     nOfErrors = hammingCode.correctMessage();
                     dataOut = hammingCode.getMessage();
