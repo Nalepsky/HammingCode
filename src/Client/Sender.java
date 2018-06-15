@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class Sender {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         String inputData,
                 respond,
                 newLine;
@@ -22,11 +22,7 @@ public class Sender {
             window = new Window(socket);
             window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             window.setVisible(true);
-
-            //inputData = scanner.nextLine();
-
-            //scanner.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.err.println(e);
         }
     }

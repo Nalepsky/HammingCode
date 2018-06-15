@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Random;
 
 public class Window extends JFrame implements ActionListener {
     Socket socket;
@@ -51,22 +52,22 @@ public class Window extends JFrame implements ActionListener {
         add(receiveShow);
 
         bSendCorrect = new JButton("Send correctly");
-        bSendCorrect.setBounds(70,110,360,20);
+        bSendCorrect.setBounds(70, 110, 360, 20);
         add(bSendCorrect);
         bSendCorrect.addActionListener(this);
 
         bSendOneError = new JButton("Send 1 error");
-        bSendOneError.setBounds(70,140,360,20);
+        bSendOneError.setBounds(70, 140, 360, 20);
         add(bSendOneError);
         bSendOneError.addActionListener(this);
 
         bSendTwoErrors = new JButton("Send 2 errors");
-        bSendTwoErrors.setBounds(70,170,360,20);
+        bSendTwoErrors.setBounds(70, 170, 360, 20);
         add(bSendTwoErrors);
         bSendTwoErrors.addActionListener(this);
 
         bExit = new JButton("Exit");
-        bExit.setBounds(70,200, 360,20);
+        bExit.setBounds(70, 200, 360, 20);
         add(bExit);
         bExit.addActionListener(this);
     }
@@ -74,49 +75,55 @@ public class Window extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         HammingCodeCreator hammingCodeCreator = new HammingCodeCreator("");
-
+        Random random = new Random();
         Object source = e.getSource();
 
-        if(source== bSendCorrect) {
+        if (source == bSendCorrect) {
 
             String message = tShow.getText();
-            char[] bits = message.toCharArray();
-
             serverPrint.println(hammingCodeCreator.createHammingCode(message));
-            tShow.setText("");
-            try {
-                //sentShow.setText("Number sent: " + convertToDecimal(bits));
-                sentShow.setText("Number sent: " + hammingCodeCreator.createHammingCode(message));
-                receiveShow.setText("Number received: " + input.readLine());
-            }catch (SocketException se){
-                se.printStackTrace();
-            }catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            if (message.length() > 2) {
 
-        }
-        //TODO: dodać pojedyncze przekłamanie bitów
-        //TODO: dodać zmiane stringa na bity i na odwrót
-        else if(source == bSendOneError){
-            serverPrint.println(tShow.getText());
-            tShow.setText("");
-            try {
-                receiveShow.setText(input.readLine());
-            } catch (IOException e1) {
-                e1.printStackTrace();
+                sentShow.setText("Number sent: " + hammingCodeCreator.createHammingCode(message));
+
+                displayMessage(message);
             }
         }
-        //TODO: dodać pojedyncze przekłamanie bitów
-        //TODO: dodać zmiane stringa na bity i na odwrót
-        else if(source == bSendTwoErrors){
-            serverPrint.println(tShow.getText());
-            tShow.setText("");
-            try {
-                receiveShow.setText(input.readLine());
-            } catch (IOException e1) {
-                e1.printStackTrace();
+        else if (source == bSendOneError) {
+            String message = tShow.getText();
+            if (message.length() > 2) {
+                message = hammingCodeCreator.createHammingCode(message);
+
+                int rand = random.nextInt(message.length()-1)+1;
+                message = changeBit(message, rand);
+                serverPrint.println(message);
+
+
+                sentShow.setText("Number sent: " + message + " with error on " + rand + "th bit");
+
+                displayMessage(message);
             }
-        } else if(source==bExit){
+        }
+        else if (source == bSendTwoErrors) {
+            String message = tShow.getText();
+            if (message.length() > 2) {
+                message = hammingCodeCreator.createHammingCode(message);
+
+                int rand = random.nextInt(message.length()-1)+1;
+                int rand2;
+                do {
+                    rand2 = random.nextInt(message.length()-1)+1;
+                } while (rand2 == rand);
+
+                message = changeBit(message, rand);
+                message = changeBit(message, rand2);
+                serverPrint.println(message);
+
+                sentShow.setText("Number sent: " + message + " with error on " + rand + "th and " + rand2 + "th bits");
+
+                displayMessage(message);
+            }
+        } else if (source == bExit) {
 
             serverPrint.println("someBad_AsS_Secur3d+Strin8!");
 
@@ -129,11 +136,51 @@ public class Window extends JFrame implements ActionListener {
         }
     }
 
+    private String changeBit(String message, int rand) {
+        char[] bits = message.toCharArray();
+        String result = "";
+
+        if (bits[bits.length - rand] == '1')
+            bits[bits.length - rand] = '0';
+        else
+            bits[bits.length - rand] = '1';
+
+        for (int i = 0; i < bits.length; i++) {
+            result = result + bits[i];
+        }
+        return result;
+    }
+
+    private void displayMessage(String message) {
+        HammingCodeCreator hammingCodeCreator = new HammingCodeCreator("");
+        tShow.setText("");
+        char[] bits = message.toCharArray();
+        try {
+            //sentShow.setText("Number sent: " + convertToDecimal(bits));
+            String answer = input.readLine();
+            int errorNumber = Integer.parseInt(input.readLine());
+            if (errorNumber == 0) {
+                receiveShow.setText("Number received: " + answer + " with no error found");
+            } if (errorNumber == -1){
+                receiveShow.setText("ERROR");
+            } else {
+                receiveShow.setText("Number received: " + answer + " with error found on " + errorNumber + "th bit");
+            }
+        } catch (SocketException se) {
+            receiveShow.setText("SocketException");
+        } catch (IOException e1) {
+            receiveShow.setText("IOException");
+        } catch (NumberFormatException nfe) {
+            receiveShow.setText("NumberFormatException");
+        }
+
+    }
+
     private int convertToDecimal(char[] binaryNumber) {
         int binary;
         //binaryNumber = swapChars(binaryNumber);
-        String tempString ="";
-        for(int i = 0; i<binaryNumber.length; i++){
+        String tempString = "";
+        for (int i = 0; i < binaryNumber.length; i++) {
             tempString = tempString + binaryNumber[i];
         }
         binary = Integer.valueOf(tempString);
@@ -141,11 +188,11 @@ public class Window extends JFrame implements ActionListener {
         int result = 0;
         int multiplier = 1;
 
-        while(binary > 0){
+        while (binary > 0) {
             int residue = binary % 10;
-            binary     = binary / 10;
-            result      = result + residue * multiplier;
-            multiplier  = multiplier * 2;
+            binary = binary / 10;
+            result = result + residue * multiplier;
+            multiplier = multiplier * 2;
         }
 
         System.out.println("whole result:");

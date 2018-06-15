@@ -31,8 +31,8 @@ public class ServerThread {
 
                     nOfErrors = hammingCode.findErrorInMessage();
                     dataOut = hammingCode.getMessage();
-                    serverRespond.println("Corrected message " + dataOut + " errors: " + nOfErrors);
-
+                    serverRespond.println(dataOut);
+                    serverRespond.println(nOfErrors);
             }
             serverRespond.println();
 

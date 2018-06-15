@@ -1,6 +1,7 @@
 package Server;
 
 class ServerHammingCode {
+
     private String message;
 
     ServerHammingCode(String message) {
@@ -44,10 +45,10 @@ class ServerHammingCode {
 
             char[] bits = message.toCharArray();
 
-            if (bits[errorNumber - 2] == '1') {
-                bits[errorNumber - 2] = '0';
+            if (bits[bits.length - errorNumber] == '1') {
+                bits[bits.length - errorNumber] = '0';
             } else {
-                bits[errorNumber - 2] = '1';
+                bits[bits.length - errorNumber] = '1';
             }
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(bits);

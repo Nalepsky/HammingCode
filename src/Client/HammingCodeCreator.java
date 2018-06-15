@@ -43,6 +43,40 @@ public class HammingCodeCreator {
     }
 
     /**
+     * @param controlBits
+     * @param message
+     * @return proper fusion of controlBits and message
+     */
+    private String createFinalMessage(char[] controlBits, char[] message){
+        char [] finalChars = new char[controlBits.length+message.length];
+
+        int insertPosition = 0;
+        for(int i = 0;i<controlBits.length;i++){
+            if(i==0){
+                finalChars[i] = controlBits[i];
+            }else {
+                insertPosition = insertPosition * 2 + 1;
+                finalChars[insertPosition] = controlBits[i];
+            }
+        }
+
+        insertPosition=3;
+        for(int i = 0; i<message.length; i++){
+            //check if insertPosition is pow of 2
+            if ((insertPosition & (insertPosition - 1)) == 0)
+                insertPosition++;
+            finalChars[insertPosition++ -1] = message[i];
+        }
+
+        String result = "";
+        for(int i=finalChars.length-1; i>=0; i--){
+            result = result + finalChars[i];
+        }
+
+        return result;
+    }
+
+    /**
      *
      * @param message
      * @param numOfCheckers
@@ -145,41 +179,6 @@ public class HammingCodeCreator {
             decimal     = decimal / 2;
             result      = result + residue * multiplier;
             multiplier  = multiplier * 10;
-        }
-
-        return result;
-    }
-
-    /**
-     *
-     * @param controlBits
-     * @param message
-     * @return proper fusion of controlBits and message
-     */
-    private String createFinalMessage(char[] controlBits, char[] message){
-        char [] finalChars = new char[controlBits.length+message.length];
-
-        int insertPosition = 0;
-        for(int i = 0;i<controlBits.length;i++){
-            if(i==0){
-                finalChars[i] = controlBits[i];
-            }else {
-                insertPosition = insertPosition * 2 + 1;
-                finalChars[insertPosition] = controlBits[i];
-            }
-        }
-
-        insertPosition=3;
-        for(int i = 0; i<message.length; i++){
-            //check if insertPosition is pow of 2
-            if ((insertPosition & (insertPosition - 1)) == 0)
-                insertPosition++;
-            finalChars[insertPosition++ -1] = message[i];
-        }
-
-        String result = "";
-        for(int i=0; i<finalChars.length; i++){
-            result = result + finalChars[i];
         }
 
         return result;
