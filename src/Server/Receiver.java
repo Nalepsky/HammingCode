@@ -19,7 +19,7 @@ public class Receiver {
 
             while(true){
                 Socket socket = serverSocket.accept();
-                new ServerThread((socket)).run();
+                new ServerThread((socket)).start();
             }
         }catch(Exception e){
             System.err.println((e));

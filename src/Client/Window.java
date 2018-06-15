@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Random;
@@ -88,48 +89,73 @@ public class Window extends JFrame implements ActionListener {
         if (source == bSendCorrect) {
 
             String message = tShow.getText();
-            serverPrint.println(hammingCodeCreator.createHammingCode(message));
-            if (message.length() > 2) {
+            if (validateInput(message)) {
+                if(validateBigInput(message)) {
 
-                message = hammingCodeCreator.createHammingCode(message);
-                sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()));
+                    message = hammingCodeCreator.createHammingCode(message);
+                    serverPrint.println(message);
 
-                displayMessage(message);
+                    sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()));
+
+                    displayMessage(message);
+                }
+                else {
+                    sentShow.setText("ENTER BINARY NUMBER WITH MAXIMUM 10 DIGITS");
+                }
+            } else {
+                sentShow.setText("ENTER CORRECT BINARY NUMBER!");
             }
-        }
-        else if (source == bSendOneError) {
+        } else if (source == bSendOneError) {
+
             String message = tShow.getText();
-            if (message.length() > 2) {
-                message = hammingCodeCreator.createHammingCode(message);
 
-                int rand = random.nextInt(message.length()-1)+1;
-                message = changeBit(message, rand);
-                serverPrint.println(message);
+            if (validateInput(message)) {
+                if(validateBigInput(message)) {
+
+                    message = hammingCodeCreator.createHammingCode(message);
+
+                    int rand = random.nextInt(message.length() - 1) + 1;
+                    message = changeBit(message, rand);
+                    serverPrint.println(message);
 
 
-                sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()) + " with error on " + rand + "th bit");
+                    sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()) + " with error on " + rand + "th bit");
 
-                displayMessage(message);
+                    displayMessage(message);
+                }
+                else {
+                    sentShow.setText("ENTER BINARY NUMBER WITH MAXIMUM 10 DIGITS");
+                }
+            } else {
+                sentShow.setText("ENTER CORRECT BINARY NUMBER!");
             }
-        }
-        else if (source == bSendTwoErrors) {
+        } else if (source == bSendTwoErrors) {
+
             String message = tShow.getText();
-            if (message.length() > 2) {
-                message = hammingCodeCreator.createHammingCode(message);
 
-                int rand = random.nextInt(message.length()-1)+1;
-                int rand2;
-                do {
-                    rand2 = random.nextInt(message.length()-1)+1;
-                } while (rand2 == rand);
+            if (validateInput(message)) {
+                if(validateBigInput(message)) {
+                    message = hammingCodeCreator.createHammingCode(message);
 
-                message = changeBit(message, rand);
-                message = changeBit(message, rand2);
-                serverPrint.println(message);
+                    int rand = random.nextInt(message.length() - 1) + 1;
+                    int rand2;
+                    do {
+                        rand2 = random.nextInt(message.length() - 1) + 1;
+                    } while (rand2 == rand);
 
-                sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()) + " with error on " + rand + "th and " + rand2 + "th bits");
+                    message = changeBit(message, rand);
+                    message = changeBit(message, rand2);
+                    serverPrint.println(message);
 
-                displayMessage(message);
+                    sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()) + " with error on " + rand + "th and " + rand2 + "th bits");
+
+                    displayMessage(message);
+                }
+                else {
+                    sentShow.setText("ENTER BINARY NUMBER WITH MAXIMUM 10 DIGITS");
+                }
+            } else {
+                sentShow.setText("ENTER CORRECT BINARY NUMBER!");
             }
         } else if (source == bExit) {
 
@@ -142,6 +168,24 @@ public class Window extends JFrame implements ActionListener {
             }
             dispose();
         }
+    }
+
+    private boolean validateInput(String message) {
+        if (message.length() < 1)
+            return false;
+
+        char[] bits = message.toCharArray();
+
+        for (char i : bits) {
+            if (i == '0' || i == '1')
+                continue;
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateBigInput(String message) {
+        return message.length() <= 10;
     }
 
     private String changeBit(String message, int rand) {
@@ -167,7 +211,7 @@ public class Window extends JFrame implements ActionListener {
             int errorNumber = Integer.parseInt(input.readLine());
             if (errorNumber == 0) {
                 receiveShow.setText("Number received: " + convertToDecimal(answer) + " with no error found");
-            } else if (errorNumber == -1){
+            } else if (errorNumber == -1) {
                 receiveShow.setText("ERROR");
             } else {
                 receiveShow.setText("Number received: " + convertToDecimal(answer) + " with error found on " + errorNumber + "th bit");
@@ -179,14 +223,12 @@ public class Window extends JFrame implements ActionListener {
         } catch (NumberFormatException nfe) {
             receiveShow.setText("NumberFormatException");
         }
-
     }
 
     private int convertToDecimal(String stringNumber) {
         int binary;
 
         binary = Integer.valueOf(stringNumber);
-        System.out.println(binary);
 
         int result = 0;
         int multiplier = 1;
@@ -198,17 +240,7 @@ public class Window extends JFrame implements ActionListener {
             multiplier = multiplier * 2;
         }
 
-        System.out.println("whole result:");
-        return result;
-    }
 
-    private char[] swapChars(char[] array) {
-        char tempSwap;
-        for (int i = 0; i < array.length / 2; i++) {
-            tempSwap = array[i];
-            array[i] = array[array.length - i - 1];
-            array[array.length - i - 1] = tempSwap;
-        }
-        return array;
+        return result;
     }
 }
