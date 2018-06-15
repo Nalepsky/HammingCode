@@ -29,7 +29,7 @@ public class ServerThread {
                     System.out.println("Received message: " + dataIn);
                     hammingCode = new ServerHammingCode(dataIn);
 
-                    nOfErrors = hammingCode.correctMessage("");
+                    nOfErrors = hammingCode.findErrorInMessage();
                     dataOut = hammingCode.getMessage();
                     serverRespond.println("Corrected message " + dataOut + " errors: " + nOfErrors);
 

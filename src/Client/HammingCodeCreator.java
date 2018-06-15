@@ -20,7 +20,7 @@ public class HammingCodeCreator {
      * @param message
      * @return Hamming Code created from message
      */
-    private String createHammingCode(String message){
+    protected String createHammingCode(String message){
 
         if(message.length()>=1) {
 
