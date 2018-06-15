@@ -21,6 +21,7 @@ public class Window extends JFrame implements ActionListener {
     JButton bSendTwoErrors;
     JButton bExit;
     JLabel receiveShow;
+    JLabel titleShow;
     JLabel sentShow;
     JTextField tShow;
 
@@ -30,44 +31,50 @@ public class Window extends JFrame implements ActionListener {
         this.input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         serverPrint = new PrintStream(socket.getOutputStream());
 
-        setSize(500, 280);
+        setSize(500, 320);
         setTitle("Hamming Code");
         setLayout(null);
 
+        titleShow = new JLabel("Type binary number:");
+        titleShow.setBounds(70, 20, 360, 20);
+        titleShow.setForeground(Color.BLUE);
+        titleShow.setFont(new Font("SansSerif", Font.BOLD, 10));
+        add(titleShow);
+
         tShow = new JTextField();
-        tShow.setBounds(70, 20, 360, 20);
+        tShow.setBounds(70, 50, 360, 20);
         tShow.setToolTipText("Enter text to check");
         add(tShow);
 
         sentShow = new JLabel("Number sent: ");
-        sentShow.setBounds(70, 50, 360, 20);
+        sentShow.setBounds(70, 80, 360, 20);
         sentShow.setForeground(Color.BLUE);
         sentShow.setFont(new Font("SansSerif", Font.BOLD, 10));
         add(sentShow);
 
         receiveShow = new JLabel("Number received: ");
-        receiveShow.setBounds(70, 80, 360, 20);
+        receiveShow.setBounds(70, 110, 360, 20);
         receiveShow.setForeground(Color.BLUE);
         receiveShow.setFont(new Font("SansSerif", Font.BOLD, 10));
         add(receiveShow);
 
         bSendCorrect = new JButton("Send correctly");
-        bSendCorrect.setBounds(70, 110, 360, 20);
+        bSendCorrect.setBounds(70, 140, 360, 20);
         add(bSendCorrect);
         bSendCorrect.addActionListener(this);
 
         bSendOneError = new JButton("Send 1 error");
-        bSendOneError.setBounds(70, 140, 360, 20);
+        bSendOneError.setBounds(70, 170, 360, 20);
         add(bSendOneError);
         bSendOneError.addActionListener(this);
 
         bSendTwoErrors = new JButton("Send 2 errors");
-        bSendTwoErrors.setBounds(70, 170, 360, 20);
+        bSendTwoErrors.setBounds(70, 200, 360, 20);
         add(bSendTwoErrors);
         bSendTwoErrors.addActionListener(this);
 
         bExit = new JButton("Exit");
-        bExit.setBounds(70, 200, 360, 20);
+        bExit.setBounds(70, 230, 360, 20);
         add(bExit);
         bExit.addActionListener(this);
     }
@@ -84,7 +91,8 @@ public class Window extends JFrame implements ActionListener {
             serverPrint.println(hammingCodeCreator.createHammingCode(message));
             if (message.length() > 2) {
 
-                sentShow.setText("Number sent: " + hammingCodeCreator.createHammingCode(message));
+                message = hammingCodeCreator.createHammingCode(message);
+                sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()));
 
                 displayMessage(message);
             }
@@ -99,7 +107,7 @@ public class Window extends JFrame implements ActionListener {
                 serverPrint.println(message);
 
 
-                sentShow.setText("Number sent: " + message + " with error on " + rand + "th bit");
+                sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()) + " with error on " + rand + "th bit");
 
                 displayMessage(message);
             }
@@ -119,7 +127,7 @@ public class Window extends JFrame implements ActionListener {
                 message = changeBit(message, rand2);
                 serverPrint.println(message);
 
-                sentShow.setText("Number sent: " + message + " with error on " + rand + "th and " + rand2 + "th bits");
+                sentShow.setText("Number sent: " + convertToDecimal(tShow.getText()) + " with error on " + rand + "th and " + rand2 + "th bits");
 
                 displayMessage(message);
             }
@@ -154,17 +162,15 @@ public class Window extends JFrame implements ActionListener {
     private void displayMessage(String message) {
         HammingCodeCreator hammingCodeCreator = new HammingCodeCreator("");
         tShow.setText("");
-        char[] bits = message.toCharArray();
         try {
-            //sentShow.setText("Number sent: " + convertToDecimal(bits));
-            String answer = input.readLine();
+            String answer = hammingCodeCreator.deleteControlBits(input.readLine());
             int errorNumber = Integer.parseInt(input.readLine());
             if (errorNumber == 0) {
-                receiveShow.setText("Number received: " + answer + " with no error found");
-            } if (errorNumber == -1){
+                receiveShow.setText("Number received: " + convertToDecimal(answer) + " with no error found");
+            } else if (errorNumber == -1){
                 receiveShow.setText("ERROR");
             } else {
-                receiveShow.setText("Number received: " + answer + " with error found on " + errorNumber + "th bit");
+                receiveShow.setText("Number received: " + convertToDecimal(answer) + " with error found on " + errorNumber + "th bit");
             }
         } catch (SocketException se) {
             receiveShow.setText("SocketException");
@@ -176,14 +182,11 @@ public class Window extends JFrame implements ActionListener {
 
     }
 
-    private int convertToDecimal(char[] binaryNumber) {
+    private int convertToDecimal(String stringNumber) {
         int binary;
-        //binaryNumber = swapChars(binaryNumber);
-        String tempString = "";
-        for (int i = 0; i < binaryNumber.length; i++) {
-            tempString = tempString + binaryNumber[i];
-        }
-        binary = Integer.valueOf(tempString);
+
+        binary = Integer.valueOf(stringNumber);
+        System.out.println(binary);
 
         int result = 0;
         int multiplier = 1;
@@ -197,5 +200,15 @@ public class Window extends JFrame implements ActionListener {
 
         System.out.println("whole result:");
         return result;
+    }
+
+    private char[] swapChars(char[] array) {
+        char tempSwap;
+        for (int i = 0; i < array.length / 2; i++) {
+            tempSwap = array[i];
+            array[i] = array[array.length - i - 1];
+            array[array.length - i - 1] = tempSwap;
+        }
+        return array;
     }
 }

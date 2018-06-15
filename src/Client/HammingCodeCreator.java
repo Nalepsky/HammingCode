@@ -16,13 +16,12 @@ public class HammingCodeCreator {
     }
 
     /**
-     *
      * @param message
      * @return Hamming Code created from message
      */
-    protected String createHammingCode(String message){
+    protected String createHammingCode(String message) {
 
-        if(message.length()>=1) {
+        if (message.length() >= 1) {
 
             char[] bitMessage = message.toCharArray();
             bitMessage = swapChars(bitMessage);
@@ -30,10 +29,10 @@ public class HammingCodeCreator {
             int length = bitMessage.length;
             int maxChecker = 1;
             int checkersCount = 0;
-            while (maxChecker < length+1) {
+            while (maxChecker < length + 1) {
                 length++;
                 checkersCount++;
-                maxChecker*=2;
+                maxChecker *= 2;
             }
             char[] controlBits = createControlBits(bitMessage, checkersCount, bitMessage.length);
 
@@ -42,34 +41,59 @@ public class HammingCodeCreator {
         return null;
     }
 
+    protected String deleteControlBits(String message) {
+        char[] bits = message.toCharArray();
+        String result = "";
+
+
+        for (int i = 3; i <= bits.length; i++) {
+            //check if insertPosition is pow of 2
+            if ((i & (i - 1)) == 0)
+                i++;
+            result = result + bits[bits.length - i];
+        }
+        result = swapString(result);
+        return result;
+    }
+
+    private String swapString(String string) {
+        char[] bits = string.toCharArray();
+        String result = "";
+
+        for (int i = 1; i <= string.length(); i++) {
+            result += bits[bits.length - i];
+        }
+        return result;
+    }
+
     /**
      * @param controlBits
      * @param message
      * @return proper fusion of controlBits and message
      */
-    private String createFinalMessage(char[] controlBits, char[] message){
-        char [] finalChars = new char[controlBits.length+message.length];
+    private String createFinalMessage(char[] controlBits, char[] message) {
+        char[] finalChars = new char[controlBits.length + message.length];
 
         int insertPosition = 0;
-        for(int i = 0;i<controlBits.length;i++){
-            if(i==0){
+        for (int i = 0; i < controlBits.length; i++) {
+            if (i == 0) {
                 finalChars[i] = controlBits[i];
-            }else {
+            } else {
                 insertPosition = insertPosition * 2 + 1;
                 finalChars[insertPosition] = controlBits[i];
             }
         }
 
-        insertPosition=3;
-        for(int i = 0; i<message.length; i++){
+        insertPosition = 3;
+        for (int i = 0; i < message.length; i++) {
             //check if insertPosition is pow of 2
             if ((insertPosition & (insertPosition - 1)) == 0)
                 insertPosition++;
-            finalChars[insertPosition++ -1] = message[i];
+            finalChars[insertPosition++ - 1] = message[i];
         }
 
         String result = "";
-        for(int i=finalChars.length-1; i>=0; i--){
+        for (int i = finalChars.length - 1; i >= 0; i--) {
             result = result + finalChars[i];
         }
 
@@ -77,39 +101,38 @@ public class HammingCodeCreator {
     }
 
     /**
-     *
      * @param message
      * @param numOfCheckers
      * @param messageLength
      * @return control bits created from message
      */
-    private char[] createControlBits(char[] message, int numOfCheckers, int messageLength){
+    private char[] createControlBits(char[] message, int numOfCheckers, int messageLength) {
         char[][] controlBitsPosition = new char[messageLength][numOfCheckers];
 
-        for (int i = 0; i<messageLength; i++){
-            for(int j = 0; j<numOfCheckers; j++){
-                controlBitsPosition[i][j]='0';
-                }
+        for (int i = 0; i < messageLength; i++) {
+            for (int j = 0; j < numOfCheckers; j++) {
+                controlBitsPosition[i][j] = '0';
             }
+        }
 
-        int insertPosition=3;
-        char [] binaryPosition;
-        char [] temp = new char[numOfCheckers];
-        for(int i = 0; i<temp.length; i++){
+        int insertPosition = 3;
+        char[] binaryPosition;
+        char[] temp = new char[numOfCheckers];
+        for (int i = 0; i < temp.length; i++) {
             temp[i] = '0';
         }
-        for (int i = 0; i<messageLength; i++){
+        for (int i = 0; i < messageLength; i++) {
             //check if insertPosition is pow of 2
             if ((insertPosition & (insertPosition - 1)) == 0)
                 insertPosition++;
 
-            if(message[i] == '1'){
+            if (message[i] == '1') {
                 binaryPosition = Integer.toString(convertToBinary(insertPosition)).toCharArray();
-                for(int k = 0; k<binaryPosition.length; k++){
-                    temp[temp.length -k -1] = binaryPosition[binaryPosition.length - k - 1];
+                for (int k = 0; k < binaryPosition.length; k++) {
+                    temp[temp.length - k - 1] = binaryPosition[binaryPosition.length - k - 1];
                 }
 
-                for(int j = 0; j<temp.length; j++) {
+                for (int j = 0; j < temp.length; j++) {
                     controlBitsPosition[i][j] = temp[j];
                 }
             }
@@ -122,25 +145,24 @@ public class HammingCodeCreator {
     }
 
     /**
-     *
      * @param numOfCheckers
      * @param messageLength
      * @param bitPositionOf1
      * @return char array, each element is sum of specific column
      */
-    private char[] sumBitsToChars(int numOfCheckers, int messageLength, char[][] bitPositionOf1){
+    private char[] sumBitsToChars(int numOfCheckers, int messageLength, char[][] bitPositionOf1) {
         char[] result = new char[numOfCheckers];
 
         int sumOfBits;
-        for (int i = 0; i<numOfCheckers; i++){
+        for (int i = 0; i < numOfCheckers; i++) {
             sumOfBits = 0;
-            for(int j = 0; j<messageLength; j++){
-                if(bitPositionOf1[j][i]=='1'){
+            for (int j = 0; j < messageLength; j++) {
+                if (bitPositionOf1[j][i] == '1') {
                     sumOfBits++;
                 }
             }
-            sumOfBits%=2;
-            if(sumOfBits==1){
+            sumOfBits %= 2;
+            if (sumOfBits == 1) {
                 result[i] = '1';
             } else {
                 result[i] = '0';
@@ -156,7 +178,7 @@ public class HammingCodeCreator {
     private char[] swapChars(char[] array) {
 
         char tempSwap;
-        for (int i = 0; i < array.length/2; i++) {
+        for (int i = 0; i < array.length / 2; i++) {
             tempSwap = array[i];
             array[i] = array[array.length - i - 1];
             array[array.length - i - 1] = tempSwap;
@@ -165,20 +187,18 @@ public class HammingCodeCreator {
     }
 
     /**
-     *
      * @param decimal
      * @return binaryNumber
      */
-    private int convertToBinary(int decimal)
-    {
+    private int convertToBinary(int decimal) {
         int result = 0;
         int multiplier = 1;
 
-        while(decimal > 0){
+        while (decimal > 0) {
             int residue = decimal % 2;
-            decimal     = decimal / 2;
-            result      = result + residue * multiplier;
-            multiplier  = multiplier * 10;
+            decimal = decimal / 2;
+            result = result + residue * multiplier;
+            multiplier = multiplier * 10;
         }
 
         return result;

@@ -5,29 +5,27 @@ import java.net.Socket;
 
 public class ServerThread {
     private Socket serverSocket;
-    private ServerHammingCode hammingCode;
     private String dataIn;
-    private String dataOut;
-    private int nOfErrors;
-    private boolean firstDataFlag;
+
 
     public ServerThread(Socket serverSocket) {
         this.serverSocket = serverSocket;
-        this.firstDataFlag = true;
     }
 
     public void run() {
+        String dataOut;
+        int nOfErrors;
         try {
 
             BufferedReader input = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
             PrintStream serverRespond = new PrintStream(serverSocket.getOutputStream());
             dataIn = "";
-
+            ServerHammingCode hammingCode;
             while (!dataIn.equals("someBad_AsS_Secur3d+Strin8!")) {
                 dataIn = input.readLine();
+                 hammingCode = new ServerHammingCode(dataIn);
 
                     System.out.println("Received message: " + dataIn);
-                    hammingCode = new ServerHammingCode(dataIn);
 
                     nOfErrors = hammingCode.findErrorInMessage();
                     dataOut = hammingCode.getMessage();

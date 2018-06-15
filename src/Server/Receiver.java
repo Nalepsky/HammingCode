@@ -19,7 +19,6 @@ public class Receiver {
 
             while(true){
                 Socket socket = serverSocket.accept();
-                //thread
                 new ServerThread((socket)).run();
             }
         }catch(Exception e){
